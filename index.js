@@ -13,7 +13,6 @@ let data = null;
 const cronSchedule = process.env.NODE_ENV === 'production' ? '0 3 * * *' : '*/2 * * * *';
 console.log(cronSchedule);
 cron.schedule(cronSchedule, async () => {
-  console.log("called cron");
   try {
     const responses = await getAll();
     data = response;
@@ -36,6 +35,13 @@ app.get("/data", async (req, res) => {
   }
   res.json(data);
 });
+
+app.get("/test", (req, res) =>{
+  res.status(200).json({
+    message: "Connection successful"
+  })
+  console.log("Called test")
+})
 
 async function getAll() {
     // throw{
