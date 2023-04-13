@@ -54,12 +54,12 @@ app.get("/data", authenticateAPIKey, async (req, res) => {
   res.json(data);
 });
 
-app.get("/test", (req, res) =>{
-  res.status(200).json({
-    message: "Connection successful"
-  })
-  console.log("Called test")
-})
+// app.get("/test", (req, res) =>{
+//   res.status(200).json({
+//     message: "Connection successful"
+//   })
+//   console.log("Called test")
+// })
 
 async function getAll() {
     // throw{
