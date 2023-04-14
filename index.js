@@ -23,7 +23,7 @@ const authenticateAPIKey = (req, res, next) => {
   }
 };
 
-// to check heroku logs run command heroku logs --tail
+// to check logs just run fly logs
 
 // Define a cron job to run every day at 3am in prod. job runs every min in nonprod
 const cronSchedule =
