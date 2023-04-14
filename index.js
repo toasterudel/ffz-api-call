@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.API_KEY;
 
-let data = null;
+let data = [];
 
 // Define a middleware function to check for a valid API key
 const authenticateAPIKey = (req, res, next) => {
@@ -42,10 +42,11 @@ cron.schedule(cronSchedule, async () => {
 
 // Route to get all emotes
 app.get("/data", authenticateAPIKey, async (req, res) => {
-  if (!data) {
+  if (data.length == 0) {
     try {
       const responses = await getAll();
       data = responses;
+      //console.log(data);
     } catch (e) {
       res.status(400).json(e);
     }
@@ -66,7 +67,8 @@ async function getAll() {
   //   error: "Testing an error"
   // }
   console.log("called getAll");
-  const responses = {};
+  let responses = [];
+  let emoteSet = new Set();
   for (let i = 0; i < 3; i++) {
     let apiCall = await axios.get(
       `https://api.frankerfacez.com/v1/emotes?sensitive=false&sort=count-desc&page=${
@@ -75,19 +77,44 @@ async function getAll() {
     );
     let { data } = apiCall;
     let { _pages, _total, emoticons } = data;
+    //console.log("mapping");
     emoticons.map(({ id, name, usage_count, urls }) => {
-      if (!(name in responses)) {
-        responses[name] = {
-          name: name,
-          id: id,
-          usage_count: usage_count,
-          urls: urls,
-        };
+      try {
+        let sanitizedName = sanitizeString(name);
+        // If the emote does not already exist in the array
+        //console.log(emoteSet.has(sanitizedName));
+        if (!emoteSet.has(sanitizedName)) {
+          responses.push({
+            name: sanitizedName,
+            id: id,
+            usage_count: usage_count,
+            urls,
+            urls,
+          });
+
+          emoteSet.add(sanitizedName);
+        }
+      } catch (e) {
+        console.error(e);
       }
+
+      // if (!(name in responses)) {
+      //   responses[name] = {
+      //     name: name,
+      //     id: id,
+      //     usage_count: usage_count,
+      //     urls: urls,
+      //   };
+      // }
     });
   }
 
   return responses;
+}
+
+function sanitizeString(str) {
+  str = str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, "");
+  return str.trim();
 }
 
 // Start the server
